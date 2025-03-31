@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Linq;
+using System.Timers;
 using System.Security.Cryptography;
 
 internal struct Instruction
@@ -35,7 +36,10 @@ public class Cpu
 	private ushort[] _stack = new ushort[16];
 	private ushort _pc = 0x200;
 	private byte _sp;
-	private byte _dt;
+
+	private System.Timers.Timer delay_timer = new Timer { Interval = 16.667 };
+	public byte dt;
+
 	private byte _st;
 	private ushort _I;
 	private bool _vf;
@@ -48,9 +52,15 @@ public class Cpu
 
 	public Cpu()
 	{
+        delay_timer.Elapsed += (s, e) =>
+        {
+			if (dt > 0)
+				dt--;
+		};
+		delay_timer.Start();
 
-	}
-	public void load(string rom)
+    }
+    public void load(string rom)
 	{
 		byte[] rom_file = System.IO.File.ReadAllBytes(rom);
 		uint start = 0x200;
@@ -61,6 +71,7 @@ public class Cpu
 	public void cycle()
 	{
 		Instruction instr = fetch();
+		Debug.WriteLine(instr.as_ushort().ToString("x"));
 		switch (instr.opcode)
 		{
 			case 0:
@@ -226,7 +237,7 @@ public class Cpu
 		_reg[instr.x] = (byte)(((byte)_rand.Next(255)) & instr.kk);
 	}
 	private void opcodeD(Instruction instruction)
-	{
+    {
 
 		for (int i = 0; i < instruction.n; i++)
 		{
@@ -257,13 +268,13 @@ public class Cpu
 		switch (instr.kk)
 		{
 			case 0x07:
-				_reg[instr.x] = _dt;
+				_reg[instr.x] = dt;
 				break;
             case 0x0A:
 				// todo
                 break;
             case 0x15:
-				_dt = _reg[instr.x];
+				dt = _reg[instr.x];
                 break;
             case 0x18:
 				_st = _reg[instr.x];
@@ -275,13 +286,17 @@ public class Cpu
 				_I = (ushort) (_reg[instr.x] * 5);
                 break;
             case 0x33:
+				byte vx = _reg[instr.x];
+				_mem[_I] = (byte)(vx/100);
+				_mem[_I + 1] = (byte)(vx/10 % 10);
+                _mem[_I + 2] = (byte) (vx % 10);
                 break;
             case 0x55:
-				for (int i = 0; i < instr.x; i++)
+				for (int i = 0; i <= instr.x; i++)
 					_mem[_I + i] = _reg[i];
                 break;
             case 0x65:
-				for (int i = 0; i < instr.x; i++)
+				for (int i = 0; i <= instr.x; i++)
 					_reg[i] = _mem[_I + i];
                 break;
         }
