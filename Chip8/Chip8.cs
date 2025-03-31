@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Chip8
 {
-    public class Game1 : Game
+    public class Chip8 : Game
     {
         private Cpu _cpu;
         private Texture2D _texture;
@@ -13,7 +13,7 @@ namespace Chip8
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        public Game1(string rom)
+        public Chip8(string rom)
         {
             _cpu = new Cpu();
             _cpu.load(rom);
@@ -75,6 +75,7 @@ namespace Chip8
 
         protected override void Draw(GameTime gameTime)
         {
+
             GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.Black);
 
             _spriteBatch.Begin();
