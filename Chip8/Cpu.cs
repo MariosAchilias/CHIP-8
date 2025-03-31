@@ -35,6 +35,8 @@ public class Cpu
 	private ushort[] _stack = new ushort[16];
 	private ushort _pc = 0x200;
 	private byte _sp;
+	private byte _dt;
+	private byte _st;
 	private ushort _I;
 	private bool _vf;
 	private byte[] _reg = new byte[16];
@@ -129,6 +131,7 @@ public class Cpu
 				display = Enumerable.Repeat(false, 64 * 32).ToArray();
 				break;
 			case 0xEE:
+				_pc = _stack[_sp--];
 				break;
 			default:
 				break;
@@ -141,6 +144,7 @@ public class Cpu
 	private void opcode2(Instruction instr)
 	{
 		_stack[++_sp] = _pc;
+		_pc = instr.nnn;
 	}
 	private void opcode3(Instruction instr)
 	{
@@ -253,22 +257,32 @@ public class Cpu
 		switch (instr.kk)
 		{
 			case 0x07:
+				_reg[instr.x] = _dt;
 				break;
             case 0x0A:
+				// todo
                 break;
             case 0x15:
+				_dt = _reg[instr.x];
                 break;
             case 0x18:
+				_st = _reg[instr.x];
                 break;
             case 0x1E:
+				_I += _reg[instr.x];
                 break;
             case 0x29:
+				_I = (ushort) (_reg[instr.x] * 5);
                 break;
             case 0x33:
                 break;
             case 0x55:
+				for (int i = 0; i < instr.x; i++)
+					_mem[_I + i] = _reg[i];
                 break;
             case 0x65:
+				for (int i = 0; i < instr.x; i++)
+					_reg[i] = _mem[_I + i];
                 break;
         }
 	}
