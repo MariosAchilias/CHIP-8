@@ -50,7 +50,7 @@ namespace Chip8
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            _cpu.cycle();
 
             base.Update(gameTime);
         }
@@ -64,7 +64,7 @@ namespace Chip8
             {
                 for (int j = 0; j < 64; j++)
                 {
-                    if (_cpu._display[j * 32 + i])
+                    if (_cpu.display[j * 32 + i])
                         _spriteBatch.Draw(_texture, new Microsoft.Xna.Framework.Rectangle(i * 10, j * 10, 10, 10), Microsoft.Xna.Framework.Color.White);
                 }
             }

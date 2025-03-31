@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Security.Cryptography;
 
 internal struct Instruction
 {
-	byte opcode;
-	byte kk;
-	byte x;
-	byte y;
-	byte n;
-	ushort nnn;
+	public byte opcode;
+	public byte kk;
+	public byte x;
+	public byte y;
+	public byte n;
+	public ushort nnn;
+
 	public Instruction(ushort instr)
 	{
 		opcode = (byte)(instr >> 12);
@@ -24,13 +27,17 @@ internal struct Instruction
 	}
 
 }
+
+// 00E0 6xnn Annn, Dxyn
 public class Cpu
 {
 	private byte[] _mem = new byte[4096];
 	private ushort[] _stack;
 	private ushort _pc = 0x200;
 	private byte _sp;
-	public bool[] _display = new bool[64 * 32];
+	private ushort _I;
+	private byte[] _reg = new byte[16];
+	public bool[] display = new bool[64 * 32];
 
 	public Cpu()
 	{
@@ -38,11 +45,33 @@ public class Cpu
 	}
 	public void load(string rom)
 	{
+		byte[] rom_file = System.IO.File.ReadAllBytes(rom);
+		uint start = 0x200;
+		for (int i = 0; i < rom_file.Length; i++)
+			_mem[start + i] = rom_file[i];
 
 	}
 	public void cycle()
 	{
-
+		Instruction instr = fetch();
+		switch (instr.opcode)
+		{
+			case 0:
+				opcode0(instr);
+				break;
+			case 6:
+				opcode6(instr);
+				break;
+			case 0xA:
+				opcodeA(instr);
+				break;
+			case 0xD:
+				opcodeD(instr);
+				break;
+			default:
+				Debug.Write($"Unimplemented opcode {instr.as_ushort().ToString("x")}\n");
+				break;
+		}	
 	}
 	private Instruction fetch()
 	{
@@ -51,8 +80,38 @@ public class Cpu
 		return new Instruction(next);
 
 	}
-	private void run(Instruction instruction)
+	private void opcode0(Instruction instruction)
+	{
+		switch (instruction.nnn)
+		{
+			case 0xE0:
+				display = Enumerable.Repeat(false, 64 * 32).ToArray();
+				break;
+			case 0xEE:
+				break;
+			default:
+				break;
+		}
+	}
+	private void opcode6(Instruction instruction)
+	{
+		_reg[instruction.x] = instruction.kk;
+	}
+	private void opcodeA(Instruction instruction)
+	{
+		_I = instruction.nnn;
+	}
+	private void opcodeD(Instruction instruction)
 	{
 
+		for (int i = 0; i < instruction.n; i++)
+		{
+            int disp_line_start = _reg[instruction.x] + (i + _reg[instruction.y]) * 64;
+			uint sprite_line = _mem[_I + i];
+            for (int j = 0; j < 8; j++)
+			{
+				display[disp_line_start + j] = ((sprite_line >> j) & 0x1) != 0;
+			}
+		}		
 	}
 }
