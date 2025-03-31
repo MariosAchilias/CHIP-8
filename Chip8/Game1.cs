@@ -16,7 +16,6 @@ namespace Chip8
         public Game1(string rom)
         {
             _cpu = new Cpu();
-            // Load rom
             _cpu.load(rom);
             _graphics = new GraphicsDeviceManager(this);
             _graphics.PreferredBackBufferWidth = 640;
