@@ -50,6 +50,25 @@ namespace Chip8
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            var kb = Keyboard.GetState();
+
+            _cpu.keypad[0] = kb.IsKeyDown(Keys.NumPad0);
+            _cpu.keypad[1] = kb.IsKeyDown(Keys.NumPad1);
+            _cpu.keypad[2] = kb.IsKeyDown(Keys.NumPad2);
+            _cpu.keypad[3] = kb.IsKeyDown(Keys.NumPad3);
+            _cpu.keypad[4] = kb.IsKeyDown(Keys.NumPad4);
+            _cpu.keypad[5] = kb.IsKeyDown(Keys.NumPad5);
+            _cpu.keypad[6] = kb.IsKeyDown(Keys.NumPad6);
+            _cpu.keypad[7] = kb.IsKeyDown(Keys.NumPad7);
+            _cpu.keypad[8] = kb.IsKeyDown(Keys.NumPad8);
+            _cpu.keypad[9] = kb.IsKeyDown(Keys.NumPad9);
+            _cpu.keypad[0xA] = kb.IsKeyDown(Keys.A);
+            _cpu.keypad[0xB] = kb.IsKeyDown(Keys.B);
+            _cpu.keypad[0xC] = kb.IsKeyDown(Keys.C);
+            _cpu.keypad[0xD] = kb.IsKeyDown(Keys.D);
+            _cpu.keypad[0xE] = kb.IsKeyDown(Keys.E);
+            _cpu.keypad[0xF] = kb.IsKeyDown(Keys.F);
+
             _cpu.cycle();
 
             base.Update(gameTime);
@@ -60,11 +79,11 @@ namespace Chip8
             GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.Black);
 
             _spriteBatch.Begin();
-            for (int i = 0; i < 32; i++)
+            for (int i = 0; i < 64; i++)
             {
-                for (int j = 0; j < 64; j++)
+                for (int j = 0; j < 32; j++)
                 {
-                    if (_cpu.display[j * 32 + i])
+                    if (_cpu.display[j * 64 + i])
                         _spriteBatch.Draw(_texture, new Microsoft.Xna.Framework.Rectangle(i * 10, j * 10, 10, 10), Microsoft.Xna.Framework.Color.White);
                 }
             }
