@@ -1,6 +1,8 @@
 # CHIP-8
 A simple CHIP-8 interpreter written in C# using MonoGame.
 
+![Space Invaders](Chip8/docs/space_invaders.png)
+
 ### About CHIP-8
 * [Wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
 
